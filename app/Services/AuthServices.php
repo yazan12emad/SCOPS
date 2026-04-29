@@ -11,7 +11,7 @@ class AuthServices
     public function register(array $data): array|bool
     {
         try {
-           $user =  User::create([
+            $user = User::create([
                 'username' => $data['username'],
                 'email' => $data['email'],
                 'password' => $data['password'],
@@ -25,15 +25,12 @@ class AuthServices
                 'token' => $token,
                 'user' => $user,
             ];
-        }
-        catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return false;
         }
-
     }
-
-  public function logIn(array $userData): array
-  {
+    public function logIn(array $userData): array
+    {
         $user = User::where('email', $userData['email'])->first();
 
         if (!$user) {
@@ -44,21 +41,27 @@ class AuthServices
             throw new \Exception("password not correct");
         }
 
-      if (!$user->is_active) {
-          throw new \Exception('Your account is deactivated.');
-      }
+        if (!$user->is_active) {
+            throw new \Exception('Your account is deactivated.');
+        }
 
-      auth()->login($user);
+        auth()->login($user);
 
-      $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-      return [
-          'success' => true,
-          'user'    => $user,
-          'token'   => $token,
-      ];
+        return [
+            'success' => true,
+            'user' => $user,
+            'token' => $token,
+        ];
 
-  }
+    }
+
+    public function logOut(): bool{
+        if (auth()->logout() && auth()->user()->tokens()->delete())
+            return true;
+        return false;
+    }
 
 
 }

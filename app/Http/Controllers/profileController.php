@@ -11,8 +11,7 @@ use Illuminate\Http\Request;
 class profileController extends Controller
 {
 
-    public function __construct(private ProfileService $profileService)
-    {}
+    public function __construct(private ProfileService $profileService){}
 
     public function userProfile(request $request)
     {
@@ -22,7 +21,6 @@ class profileController extends Controller
     }
 
     public function updateProfile(ProfileUpdateValidation $request){
-
         try {
             $user = auth()->user();
             $wasChanged = $this->profileService->updateProfile($user, $request->validated());

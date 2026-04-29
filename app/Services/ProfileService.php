@@ -19,10 +19,9 @@ class ProfileService
     public function changePassword(User $user , array $data)
     {
         if (!Hash::check($data['current_password'], $user->password)) {
-            return response()->json([
-                'message' => 'Current password is incorrect'
-            ], 400);
+                throw new \Exception('Failed to update change password');
         }
+
         $user->update(['password' => Hash::make($data['password'])]);
         return $user->wasChanged();
     }

@@ -14,7 +14,6 @@ class ServiceController extends Controller
     // Returns paginated list of services, filterable by category_id
     public function index(Request $request){
         $query = Service::with('category');
-
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }

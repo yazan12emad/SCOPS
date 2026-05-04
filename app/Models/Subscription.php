@@ -6,14 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subscription extends Model
 {
-    protected $fillable=[
-        'name',
-        'plan_name',
-        'price',
+    protected $fillable = [
+        'user_id',
+        'service_id',
+        'card_id',
+        'plan_id',
+        'amount',
         'billing_cycle',
-        'status',
-        'priority',
+        'start_date',
         'renewal_date',
+        'status',
         'reminder_days',
+        'priority',
     ];
 }

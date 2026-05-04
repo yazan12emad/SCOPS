@@ -6,29 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
             $table->foreignId('service_id')->constrained()->onDelete('cascade');
-            $table->foreignId('card_id')->constrained()->onDelete('cascade');
-            $table->foreignId('plan_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('card_id');
+            $table->foreignId('plan_id')->constrained('service_plans')->onDelete('cascade');
             $table->decimal('amount', 8, 2);
             $table->string('billing_cycle');
             $table->date('start_date');
             $table->date('renewal_date');
             $table->string('status')->default('active');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('card_id')->references('card_id')->on('card')->onDelete('cascade');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('subscriptions');

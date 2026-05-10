@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CardController;
 use App\Http\Controllers\profileController;
-use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -31,7 +33,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/subscriptions/{id}/cancel', [SubscriptionController::class, 'cancel']);
     //(Get request to /subscriptions/{id}/renewal) → calculates next renewal date for subscription with id of the user
     Route::get('/subscriptions/{id}/renewal', [SubscriptionController::class, 'calculateNextRenewal']);
-});
 
 //GET /categories → returns all categories (Streaming, Music, etc.)
 Route::get('/categories', [CategoryController::class, 'index']);

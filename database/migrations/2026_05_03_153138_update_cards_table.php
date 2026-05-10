@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::table('cards', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
 
-            $table->foreign('user_id')->references('user_id')->on('users')->cascadeOnDelete();
+            $table->foreign('user_id')->references('user_id')
+                ->on('users')->cascadeOnDelete();
 
             $table->tinyInteger('expiry_month')->change();
             $table->smallInteger('expiry_year')->change();

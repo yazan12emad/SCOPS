@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Middleware\checkRole;
+use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\PreventAuthenticatedLogin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,8 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'prevent.auth.login' => PreventAuthenticatedLogin::class,
-            'role' => checkRole::class,
-
+            'role' => CheckRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

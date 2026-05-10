@@ -6,8 +6,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
-class registerUserValidation extends FormRequest
+class RegisterUserValidation extends FormRequest
 {
 
     /**
@@ -17,19 +18,15 @@ class registerUserValidation extends FormRequest
     {
         return true;
     }
+    protected $stopOnFirstFailure = true;
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'username' => 'required|string|max:20|unique:users,username',
-            'email' => 'required|string|email|max:30|unique:users',
-            'password' => 'min:8|required',
-            'phone'=> 'required|regex:/^\d{10}$/',
+            'username' => ['required', 'string', 'max:20', Rule::unique('users', 'username')],
+            'email'=> ['required', 'string', 'email:rfc,dns', 'max:30', Rule::unique('users', 'email')],
+            'password'=> ['required', 'string', 'min:8'],
+            'phone'=> ['required', 'digits:10', Rule::unique('users', 'phone')],
         ];
     }
     public function messages() : array

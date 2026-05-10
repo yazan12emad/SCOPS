@@ -14,7 +14,7 @@ class PreventAuthenticatedLogin
             return response()->json([
                 'success' => false,
                 'message' => 'User is already logged in.',
-            ], 400);
+            ], 409);
         }
 
         return $next($request);

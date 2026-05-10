@@ -5,6 +5,7 @@ namespace App\Traits;
 /*Instead of writing the same success() and error() functions in every controller,
 you write it once in a Trait and just say use ApiResponse in any controller
 that needs it.*/
+
 trait ApiResponse {
     protected function success($data, $message = 'OK', $code = 200) {
         return response()->json([

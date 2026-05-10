@@ -3,23 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginUserValidation;
-use App\Http\Requests\registerUserValidation;
+use App\Http\Requests\RegisterUserValidation;
 use App\Services\AuthServices;
+use App\Traits\ApiResponse;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
+
     public function __construct(private AuthServices $authService ){}
 
-    public function register(registerUserValidation $request){
+    public function register(RegisterUserValidation $request){
         try {
             $newUserData = $this->authService->register($request->validated());
-
-            if(!$newUserData){
-                return $this->jsonResponse([
-                    'success' => false,
-                    'message' => 'Registration failed , please try again',
-                ], 500);
-            }
 
             return $this->jsonResponse([
                 'message' => 'Account created successfully.',
@@ -29,10 +25,11 @@ class AuthController extends Controller
 
             ] , 201);
 
+
         } catch (\Exception $exception) {
             return $this->jsonResponse([
                 'success' => false,
-                'message' => 'Registration failed , please try again',
+                'message' => $exception->getMessage(),
             ], 500);
         }
 
@@ -41,7 +38,6 @@ class AuthController extends Controller
     public function login(loginUserValidation $request){
         try {
             $result = $this->authService->logIn($request->validated());
-
             return $this->jsonResponse([
                 'success' => true,
                 'message' => 'Logged in successfully.',
@@ -49,20 +45,28 @@ class AuthController extends Controller
                 'user' => $result['user'],
             ], 200);
 
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             return $this->jsonResponse([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => $exception->getMessage(),
             ], 401);
         }
     }
 
     public function logout()
     {
-        auth()->user()->tokens()->delete();
+        try{
+          $this->authService->logOut();
         return $this->jsonResponse([
             'success' => true,
             'message' => 'Logged out successfully.',
-        ], 200);
+        ]);
+        }
+        catch (\Exception $exception){
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 }

@@ -7,12 +7,10 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class changePasswordValidation extends FormRequest
+class ChangePasswordValidation extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
 
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
@@ -26,10 +24,8 @@ class changePasswordValidation extends FormRequest
     public function rules(): array
     {
         return [
-            'current_password' => 'min:8|required',
-            'password' => 'min:8|required',
-            'password_confirmation' => 'min:8|required|same:password',
-
+            'current_password' => ['required', 'current_password'],
+            'password'=> ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
         ];
     }
     public function messages() : array
@@ -45,7 +41,6 @@ class changePasswordValidation extends FormRequest
             'password.required' => 'Password is required',
             'phone.required' => 'Phone number is required',
             'phone.regex' => 'Phone number must be 10 digits',
-
         ];
     }
     public function failedValidation(Validator $validator)

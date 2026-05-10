@@ -7,10 +7,11 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class LoginUserValidation extends FormRequest
+class UpdateCardRequest extends FormRequest
 {
-    protected $stopOnFirstFailure = true;
-
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         return true;
@@ -24,24 +25,17 @@ class LoginUserValidation extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email', 'max:30'],
-            'password' => ['required', 'min:8']
+            'is_primary' => ['required','boolean'],
         ];
     }
-    public function messages(): array{
-        return [
-            'email.required' => 'Email is required',
-            'password.required' => 'Password is required',
-            'password.min' => 'Password must be at least 8 characters',
-        ];
-    }
-    public function failedValidation(Validator $validator)
-    {
+
+    public function failedValidation(Validator $validator){
         throw new HttpResponseException(
             response()->json([
                 'success' => false,
-                'errors'  => $validator->errors(),
+                'message' => $validator->errors(),
             ], 422)
         );
     }
+
 }

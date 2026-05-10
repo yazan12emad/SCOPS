@@ -3,11 +3,15 @@
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+
 
 class ProfileService
 {
+    public function getProfile(){
+        return User::find(auth()->id());
+    }
+
     public function updateProfile(User $user, array $data): bool
     {
         if (!$user->update($data)) {
@@ -22,7 +26,7 @@ class ProfileService
                 throw new \Exception('Failed to update change password');
         }
 
-        $user->update(['password' => Hash::make($data['password'])]);
+        $user->update(['password' => $data['password']]);
         return $user->wasChanged();
     }
 

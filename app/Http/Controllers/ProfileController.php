@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\changePasswordValidation;
+use App\Http\Requests\ChangePasswordValidation;
 use App\Http\Requests\ProfileUpdateValidation;
-use App\Models\User;
 use App\Services\ProfileService;
 use Illuminate\Http\Request;
 
-class profileController extends Controller
+class ProfileController extends Controller
 {
-
     public function __construct(private ProfileService $profileService){}
 
     public function userProfile(request $request)
     {
-        return response()->json([
-            'user' => $request->user()
+        return $this->jsonResponse([
+            'user' => $this->profileService->getProfile(),
         ]);
     }
 
@@ -24,31 +22,30 @@ class profileController extends Controller
         try {
             $user = auth()->user();
             $wasChanged = $this->profileService->updateProfile($user, $request->validated());
-            return response()->json([
+            return $this->jsonResponse([
                 'success' => $wasChanged,
-                'message' => $wasChanged ? 'Profile updated successfully' : 'Failed to update profile',
+                'message' => $wasChanged ? 'Profile updated successfully' : 'Nothing to update',
             ]);
         }
-
         catch (\Exception $exception){
-            return response()->json([
+            return $this->jsonResponse([
                 'success' => false,
                 'message' => $exception->getMessage()
             ] , 500);
         }
     }
 
-    public function changePassword(changePasswordValidation $request){
+    public function changePassword(ChangePasswordValidation $request){
         try {
             $user = auth()->user();
             $wasChanged =  $this->profileService->changePassword($user , $request->validated());
-            return response()->json([
+            return $this->jsonResponse([
                 'success' => $wasChanged,
-                'message' => $wasChanged ? 'Password updated successfully' : 'Failed to update password',
+                'message' => $wasChanged ? 'Password updated successfully' : 'Nothing to update',
             ]);
         }
         catch (\Exception $exception){
-            return response()->json([
+            return $this->jsonResponse([
                 'success' => false,
                 'message' => $exception->getMessage()
             ] , 500);

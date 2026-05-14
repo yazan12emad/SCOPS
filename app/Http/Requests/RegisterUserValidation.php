@@ -23,7 +23,8 @@ class RegisterUserValidation extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string', 'max:20', Rule::unique('users', 'username')],
+            'firstName' => ['required', 'string', 'max:20'],
+            'lastName' => ['required', 'string', 'max:20'],
             'email'=> ['required', 'string', 'email:rfc,dns', 'max:30', Rule::unique('users', 'email')],
             'password'=> ['required', 'string', 'min:8'],
             'phone'=> ['required', 'digits:10', Rule::unique('users', 'phone')],
@@ -32,9 +33,10 @@ class RegisterUserValidation extends FormRequest
     public function messages() : array
     {
         return [
-            'username.required' => 'Username is required',
-            'username.string' => 'Username must be string',
-            'username.unique' => 'Username already exists',
+            'firstName.required' => 'First name is required',
+            'firstName.string' => 'First name must be string',
+            'lastName.required' => 'Last name is required',
+            'lastName.string' => 'Last name must be string',
             'email.required' => 'Email is required',
             'email.string' => 'Email must be string',
             'email.unique' => 'Email already exists',

@@ -14,7 +14,7 @@ class ProfileUpdateValidation extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return auth()->check();
     }
 
     /**
@@ -26,10 +26,8 @@ class ProfileUpdateValidation extends FormRequest
     {
         $userId = auth()->id();
         return [
-            'username' => [
-                'sometimes', 'string', 'max:20',
-                Rule::unique('users', 'username')->ignore($userId, 'user_id'),
-            ],
+            'firstName' => ['sometimes', 'string', 'max:20'],
+            'lastName' => ['sometimes', 'string', 'max:20'],
             'email' => [
                 'sometimes', 'string', 'email', 'max:30',
                 Rule::unique('users', 'email')->ignore($userId, 'user_id'),
@@ -44,9 +42,10 @@ class ProfileUpdateValidation extends FormRequest
     public function messages(): array
     {
         return [
-            'username.required' => 'Username is required',
-            'username.string' => 'Username must be string',
-            'username.unique' => 'Username already exists',
+            'firstName.required' => 'First name is required',
+            'firstName.string' => 'First name must be string',
+            'lastName.required' => 'Last name is required',
+            'lastName.string' => 'Last name must be string',
             'email.required' => 'Email is required',
             'email.string' => 'Email must be string',
             'email.unique' => 'Email already exists',

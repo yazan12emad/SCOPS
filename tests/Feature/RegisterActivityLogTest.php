@@ -13,8 +13,9 @@ class RegisterActivityLogTest extends TestCase
     public function test_register_creates_activity_log_for_new_user(): void
     {
         $response = $this->postJson('/api/register', [
-            'username' => 'activityuser',
-            'email' => 'activity@example.com',
+            'firstName' => 'Activity',
+            'lastName' => 'User',
+            'email' => 'activity@gmail.com',
             'password' => 'password123',
             'phone' => '0791234567',
         ]);

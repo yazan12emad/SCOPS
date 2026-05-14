@@ -19,4 +19,10 @@ class Subscription extends Model
         'reminder_days',
         'priority',
     ];
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
 }

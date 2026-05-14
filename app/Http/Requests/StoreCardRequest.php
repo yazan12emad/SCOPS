@@ -40,7 +40,6 @@ class StoreCardRequest extends FormRequest
     public function rules(): array
     {
         $firstOfCurrentMonth = date('Y-m-01');
-
         return [
             'card_holder_name' => ['required', 'string', 'max:100'],
             'card_brand'=> ['required', 'string', Rule::in(['Visa', 'MasterCard', 'American Express'])],

@@ -31,12 +31,6 @@ class ChangePasswordValidation extends FormRequest
     public function messages() : array
     {
         return [
-            'username.required' => 'Username is required',
-            'username.string' => 'Username must be string',
-            'username.unique' => 'Username already exists',
-            'email.required' => 'Email is required',
-            'email.string' => 'Email must be string',
-            'email.unique' => 'Email already exists',
             'password.min' => 'Password must be at least 8 characters',
             'password.required' => 'Password is required',
             'phone.required' => 'Phone number is required',

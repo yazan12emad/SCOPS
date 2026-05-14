@@ -13,7 +13,8 @@ class LoginTest extends TestCase
     public function test_guest_user_can_log_in(): void
     {
         $user = User::create([
-            'username' => 'testuser',
+            'firstName' => 'Test',
+            'lastName' => 'User',
             'email' => 'test@example.com',
             'password' => 'password123',
             'phone' => '0791234567',
@@ -41,7 +42,8 @@ class LoginTest extends TestCase
     public function test_authenticated_user_cannot_log_in_again(): void
     {
         $user = User::create([
-            'username' => 'testuser',
+            'firstName' => 'Test',
+            'lastName' => 'User',
             'email' => 'test@example.com',
             'password' => 'password123',
             'phone' => '0791234567',

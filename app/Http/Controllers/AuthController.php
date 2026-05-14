@@ -16,13 +16,11 @@ class AuthController extends Controller
     public function register(RegisterUserValidation $request){
         try {
             $newUserData = $this->authService->register($request->validated());
-
             return $this->jsonResponse([
                 'message' => 'Account created successfully.',
                 'success' => true,
                 'token'   => $newUserData['token'],
                 'user'    => $newUserData['user'],
-
             ] , 201);
 
 

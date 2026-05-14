@@ -6,6 +6,7 @@ use App\Traits\LogsActivity;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,7 +20,8 @@ class User extends Authenticatable
 
     protected $fillable = [
         'user_id' ,
-        'username',
+        'first_name',
+        'last_name',
         'email',
         'password',
         'phone',
@@ -29,6 +31,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+
     protected $primaryKey = 'user_id';
 
 
@@ -39,6 +43,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Card::class, 'user_id');
     }
+
 
 
     /**

@@ -11,8 +11,8 @@ class AuthServices
     public function register(array $data): array
     {
             if(!$user = User::create([
-                'first_name' => $data['firstName'],
-                'last_name' => $data['lastName'],
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'password' => $data['password'], // hash by the User Model
                 'phone' => $data['phone'],

@@ -9,16 +9,17 @@ use Illuminate\Http\Request;
 class AdminController extends Controller
 {
     use ApiResponse;
-
+//----------------------------------------------------USERS-------------------------------------------------------------
     public function listUsers(Request $request){
         $query = User::query();
         if($request->has('search')){
             $query->where('first_name', 'like', '%'.$request->search.'%')
-                ->orWhere('email', 'like', '%'.$request->search.'%');
+                ->orWhere('email', 'like', '%'.$request->search.'%');// here to make the admin search the users
         }
         return $this->success($query->paginate(10), 'Users fetched');
     }
 
+    //user activating and deactivating
     public function toggleUser($id){
         $user = User::find($id);
         if(!$user){ return $this->error('User not found', 404); }
@@ -27,6 +28,7 @@ class AdminController extends Controller
         return $this->success($user, "User {$status} successfully");
     }
 
+    //List the all the user subscription
     public function userSubscriptions($id){
         $user = User::find($id);
         if(!$user){ return $this->error('User not found', 404); }
@@ -34,6 +36,7 @@ class AdminController extends Controller
         return $this->success($subscriptions, 'User subscriptions fetched');
     }
 
+    //Add a new user
     public function addUser(Request $request){
         if(User::where('email', $request->email)->exists()){
             return $this->error('Email already exists', 400);
@@ -50,6 +53,7 @@ class AdminController extends Controller
         return $this->success($user, 'User created');
     }
 
+    //Update first/last name , email, phone and the role of teh user
     public function updateUser(Request $request, $id){
         $user = User::find($id);
         if(!$user){ return $this->error('User not found', 404); }
@@ -63,13 +67,27 @@ class AdminController extends Controller
         return $this->success($user, 'User updated');
     }
 
-    public function deleteUser($id){
+    //Reset pasword for one user
+    public function resetPassword(Request $request, $id){
         $user = User::find($id);
-        if(!$user){ return $this->error('User not found', 404); }
+        if(!$user){
+            return $this->error('User not found', 404);
+        }
+        $user->update(['password' => bcrypt($request->password)]);
+        return $this->success(null, 'Password reset successfully');
+    }
+
+    //Delete one user
+    public function deleteUser($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return $this->error('User not found', 404);
+        }
         $user->delete();
         return $this->success(null, 'User deleted');
     }
-
+//----------------------------------------------------SERVICES----------------------------------------------------------
     public function listServices(){
         $services = Service::with('category')->paginate(10);
         return $this->success($services, 'Services fetched');
@@ -103,7 +121,7 @@ class AdminController extends Controller
         $service->delete();
         return $this->success(null, 'Service deleted');
     }
-
+//----------------------------------------------------STATISTICS--------------------------------------------------------
     public function statistics(){
         $stats = [
             'total_users'          => User::count(),

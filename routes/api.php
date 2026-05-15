@@ -19,6 +19,10 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.auth.login');
 
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services/{id}', [ServiceController::class, 'show']);// the id here is for the service
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -33,9 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/subscriptions/{id}/pause', [SubscriptionController::class, 'pause']);
     Route::put('/subscriptions/{id}/resume', [SubscriptionController::class, 'resume']);
 
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/services', [ServiceController::class, 'index']);
-    Route::get('/services/{id}', [ServiceController::class, 'show']);
 
     Route::get('/cards', [CardController::class, 'getCards']);
     Route::post('/cards', [CardController::class, 'addCard']);
@@ -55,16 +56,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Admin routes (auth:sanctum only, no admin middleware)
 Route::middleware('auth:sanctum')->group(function () {
+    //----------------------------------------------------USERS----------------------------------------------------------
     Route::get('/admin/users', [AdminController::class, 'listUsers']);
     Route::post('/admin/users', [AdminController::class, 'addUser']);
     Route::put('/admin/users/{id}', [AdminController::class, 'updateUser']);
     Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
     Route::put('/admin/users/{id}/toggle', [AdminController::class, 'toggleUser']);
     Route::put('/admin/users/{id}/reset-password', [AdminController::class, 'resetPassword']);
+    //----------------------------------------------------SUPSCRIPTIONS----------------------------------------------------------
     Route::get('/admin/users/{id}/subscriptions', [AdminController::class, 'userSubscriptions']);
+    //----------------------------------------------------SERVICES----------------------------------------------------------
     Route::get('/admin/services', [AdminController::class, 'listServices']);
     Route::post('/admin/services', [AdminController::class, 'addService']);
     Route::put('/admin/services/{id}', [AdminController::class, 'updateService']);
     Route::delete('/admin/services/{id}', [AdminController::class, 'deleteService']);
+    //----------------------------------------------------STATISTICS--------------------------------------------------------
     Route::get('/admin/statistics', [AdminController::class, 'statistics']);
 });

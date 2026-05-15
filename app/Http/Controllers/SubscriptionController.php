@@ -18,9 +18,25 @@ class SubscriptionController extends Controller
             $query->where('status', $request->status);
         }
 
-        // filter by service
-        if($request->has('service_id')){
-            $query->where('service_id', $request->service_id);
+
+        // filter by category
+        if($request->has('category_id')){
+            $query->whereHas('service', function($q) use ($request){
+                $q->where('category_id', $request->category_id);
+            });
+        }
+
+        // sort by renewal date to see which subscription renew soon
+        if($request->has('sort_order')){
+            $direction = $request->sort_order === 'desc' ? 'desc' : 'asc';
+            $query->orderBy('renewal_date', $direction);
+        }
+
+        // search by service name
+        if($request->has('search')){
+            $query->whereHas('service', function($q) use ($request){
+                $q->where('name', 'like', '%'.$request->search.'%');
+            });
         }
 
         return $this->success($query->get(), 'Subscriptions fetched');

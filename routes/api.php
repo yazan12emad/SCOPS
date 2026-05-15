@@ -6,6 +6,9 @@ use App\Http\Controllers\profileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function(){
@@ -23,29 +26,45 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [profileController::class, 'updateProfile']);
     Route::post('/profile/change-password', [profileController::class, 'changePassword']);
 
-
-    // this return all the subscriptions for the logged in user(GET request to /subscriptions)
     Route::get('/subscriptions', [SubscriptionController::class, 'index']);
-    // create a new subscription (POST request to /subscriptions)
     Route::post('/subscriptions', [SubscriptionController::class, 'store']);
-    //(PUT request to /subscriptions/{id}/cancel) → cancels subscription with id of the user
     Route::put('/subscriptions/{id}/cancel', [SubscriptionController::class, 'cancel']);
-    //(Get request to /subscriptions/{id}/renewal) → calculates next renewal date for subscription with id of the user
     Route::get('/subscriptions/{id}/renewal', [SubscriptionController::class, 'calculateNextRenewal']);
+    Route::put('/subscriptions/{id}/pause', [SubscriptionController::class, 'pause']);
+    Route::put('/subscriptions/{id}/resume', [SubscriptionController::class, 'resume']);
 
-//GET /categories → returns all categories (Streaming, Music, etc.)
-Route::get('/categories', [CategoryController::class, 'index']);
-//GET /services → returns all services (Netflix, Spotify, etc.)
-Route::get('/services', [ServiceController::class, 'index']);
-//GET /services/3 → returns one specific service by its id (and we used show because it is returns one record by ID)
-Route::get('/services/{id}', [ServiceController::class, 'show']);
-//(PUT request to /subscriptions/{id}/pause) → pauses subscription with the given id
-Route::put('/subscriptions/{id}/pause', [SubscriptionController::class, 'pause']);
-//(PUT request to /subscriptions/{id}/resume) → resumes a paused subscription with the given id
-Route::put('/subscriptions/{id}/resume', [SubscriptionController::class, 'resume']);
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/services', [ServiceController::class, 'index']);
+    Route::get('/services/{id}', [ServiceController::class, 'show']);
 
     Route::get('/cards', [CardController::class, 'getCards']);
     Route::post('/cards', [CardController::class, 'addCard']);
     Route::delete('/cards/{card}', [CardController::class, 'deleteCard']);
     Route::patch('/cards/{card}/primary', [CardController::class, 'changePrimary']);
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+
+    // Reviews
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::get('/reviews/{service_id}', [ReviewController::class, 'index']);
+});
+
+// Admin routes (auth:sanctum only, no admin middleware)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/admin/users', [AdminController::class, 'listUsers']);
+    Route::post('/admin/users', [AdminController::class, 'addUser']);
+    Route::put('/admin/users/{id}', [AdminController::class, 'updateUser']);
+    Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
+    Route::put('/admin/users/{id}/toggle', [AdminController::class, 'toggleUser']);
+    Route::put('/admin/users/{id}/reset-password', [AdminController::class, 'resetPassword']);
+    Route::get('/admin/users/{id}/subscriptions', [AdminController::class, 'userSubscriptions']);
+    Route::get('/admin/services', [AdminController::class, 'listServices']);
+    Route::post('/admin/services', [AdminController::class, 'addService']);
+    Route::put('/admin/services/{id}', [AdminController::class, 'updateService']);
+    Route::delete('/admin/services/{id}', [AdminController::class, 'deleteService']);
+    Route::get('/admin/statistics', [AdminController::class, 'statistics']);
 });

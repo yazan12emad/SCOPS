@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/subscriptions/{id}/renewal', [SubscriptionController::class, 'calculateNextRenewal']);
     Route::put('/subscriptions/{id}/pause', [SubscriptionController::class, 'pause']);
     Route::put('/subscriptions/{id}/resume', [SubscriptionController::class, 'resume']);
+    Route::get('/financial-summary', [SubscriptionController::class, 'financialSummary']);
 
 
     Route::get('/cards', [CardController::class, 'getCards']);

@@ -61,7 +61,27 @@ class SubscriptionController extends Controller
         return $this->success($subscription, 'Subscription created');
     }
 
-    // Cancel a subscription
+    // Pause a subscription
+    public function pause($id){
+        $subscription = Subscription::find($id);
+        if(!$subscription){
+            return $this->error('Subscription not found', 404);
+        }
+        $subscription->update(['status' => 'paused']);
+        return $this->success($subscription, 'Subscription paused');
+    }
+
+    // Resume a subscription
+    public function resume($id){
+        $subscription = Subscription::find($id);
+        if(!$subscription){
+            return $this->error('Subscription not found', 404);
+        }
+        $subscription->update(['status' => 'active']);
+        return $this->success($subscription, 'Subscription resumed');
+    }
+
+    //Cancel a subscription
     public function cancel($id){
         $subscription = Subscription::find($id);
         if(!$subscription){
@@ -86,23 +106,32 @@ class SubscriptionController extends Controller
         return $this->success($subscription, 'Renewal date updated');
     }
 
-    // Pause a subscription
-    public function pause($id){
-        $subscription = Subscription::find($id);
-        if(!$subscription){
-            return $this->error('Subscription not found', 404);
-        }
-        $subscription->update(['status' => 'paused']);
-        return $this->success($subscription, 'Subscription paused');
-    }
+    //returns spending data for charts
+    public function financialSummary(Request $request){
+        $userId = $request->user()->user_id;
 
-    // Resume a subscription
-    public function resume($id){
-        $subscription = Subscription::find($id);
-        if(!$subscription){
-            return $this->error('Subscription not found', 404);
-        }
-        $subscription->update(['status' => 'active']);
-        return $this->success($subscription, 'Subscription resumed');
+        $subscriptions = Subscription::where('user_id', $userId)
+            ->where('status', 'active')
+            ->get();
+
+        $monthlyTotal = $subscriptions
+            ->where('billing_cycle', 'monthly')
+            ->sum('amount');
+
+        $yearlyTotal = $subscriptions
+            ->where('billing_cycle', 'yearly')
+            ->sum('amount');
+
+        $weeklyTotal = $subscriptions
+            ->where('billing_cycle', 'weekly')
+            ->sum('amount');
+
+        return $this->success([
+            'total_monthly_spending'  => round($monthlyTotal, 2),// to keep 2 numbers after the decimal
+            'total_yearly_spending'   => round($yearlyTotal, 2),
+            'total_weekly_spending'   => round($weeklyTotal, 2),
+            'estimated_monthly_cost'  => round($monthlyTotal + ($yearlyTotal / 12) + ($weeklyTotal * 4), 2),
+            'active_subscriptions'    => $subscriptions->count(),
+        ], 'Financial summary fetched');
     }
 }

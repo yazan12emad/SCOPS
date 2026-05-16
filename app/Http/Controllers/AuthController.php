@@ -6,6 +6,8 @@ use App\Http\Requests\LoginUserValidation;
 use App\Http\Requests\RegisterUserValidation;
 use App\Services\AuthServices;
 use App\Traits\ApiResponse;
+use App\Mail\WelcomeMail;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -16,21 +18,22 @@ class AuthController extends Controller
     public function register(RegisterUserValidation $request){
         try {
             $newUserData = $this->authService->register($request->validated());
+
+            // Send welcome email
+            Mail::to($newUserData['user']->email)->send(new WelcomeMail($newUserData['user']->first_name));
+
             return $this->jsonResponse([
                 'message' => 'Account created successfully.',
                 'success' => true,
                 'token'   => $newUserData['token'],
                 'user'    => $newUserData['user'],
-            ] , 201);
-
-
+            ], 201);
         } catch (\Exception $exception) {
             return $this->jsonResponse([
                 'success' => false,
                 'message' => $exception->getMessage(),
             ], 500);
         }
-
     }
 
     public function login(loginUserValidation $request){

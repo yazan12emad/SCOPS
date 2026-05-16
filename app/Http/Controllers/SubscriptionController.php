@@ -89,6 +89,11 @@ class SubscriptionController extends Controller
         }
         $subscription->update(['status' => 'cancelled']);
         return $this->success($subscription, 'Subscription cancelled');
+
+        $service = Service::find($subscription->service_id);
+        Mail::to($subscription->user->email)->send(
+            new SubscriptionCancelledMail($subscription->user->first_name, $service->name)
+        );
     }
 
     // Calculate next renewal date

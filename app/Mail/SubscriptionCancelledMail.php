@@ -9,6 +9,8 @@ use Illuminate\Queue\SerializesModels;
 class SubscriptionCancelledMail extends Mailable
 {
     use Queueable, SerializesModels;
+    //Queueable : allow the email to be sent in the background
+    //SerializesModels : it converts objects to text and back again for the queue
 
     public string $firstName;
     public string $serviceName;

@@ -12,7 +12,7 @@ class WelcomeMail extends Mailable
 
     public string $firstName;
 
-    public function __construct(string $firstName)
+    public function __construct(string $firstName)//__construct mean the function that runs automatically when you create the object
     {
         $this->firstName = $firstName;
     }

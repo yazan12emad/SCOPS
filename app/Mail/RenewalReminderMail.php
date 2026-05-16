@@ -1,11 +1,7 @@
 <?php
-
 namespace App\Mail;
-
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -14,41 +10,26 @@ class RenewalReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    public string $firstName;
+    public string $serviceName;
+    public string $renewalDate;
+    public int $daysLeft;
+
+    public function __construct(string $firstName, string $serviceName, string $renewalDate, int $daysLeft)
     {
-        //
+        $this->firstName   = $firstName;
+        $this->serviceName = $serviceName;
+        $this->renewalDate = $renewalDate;
+        $this->daysLeft    = $daysLeft;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: 'Renewal Reminder Mail',
-        );
+        return new Envelope(subject: 'Subscription Renewal Reminder');
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
-        return new Content(
-            view: 'view.name',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
+        return new Content(view: 'emails.renewal-reminder');
     }
 }

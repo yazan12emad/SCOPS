@@ -1,11 +1,7 @@
 <?php
-
 namespace App\Mail;
-
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -14,41 +10,22 @@ class SubscriptionCancelledMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    public string $firstName;
+    public string $serviceName;
+
+    public function __construct(string $firstName, string $serviceName)
     {
-        //
+        $this->firstName   = $firstName;
+        $this->serviceName = $serviceName;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: 'Subscription Cancelled Mail',
-        );
+        return new Envelope(subject: 'Subscription Cancelled');
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
-        return new Content(
-            view: 'view.name',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
+        return new Content(view: 'emails.subscription-cancelled');
     }
 }

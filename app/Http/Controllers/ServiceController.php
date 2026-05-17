@@ -24,12 +24,10 @@ class ServiceController extends Controller
     // Returns a single service by its ID
     // If not found, return 404 error
     public function show($id){
-        $service = Service::with('Category')->find($id); // find service by its ID, and include its category data
-
+        $service = Service::with(['category', 'plans'])->find($id);
         if(!$service){
             return $this->error('Service not found', 404);
         }
-
         return $this->success($service, 'Service fetched');
     }
 }

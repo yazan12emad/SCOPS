@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ServicePlans;
 
 class Service extends Model {
     use LogsActivity;
@@ -12,5 +13,9 @@ class Service extends Model {
 
     public function category() {
         return $this->belongsTo(Category::class);
+    }
+    public function plans()
+    {
+        return $this->hasMany(ServicePlans::class, 'service_id');
     }
 }

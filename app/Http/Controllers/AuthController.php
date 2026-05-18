@@ -20,8 +20,7 @@ class AuthController extends Controller
             $newUserData = $this->authService->register($request->validated());
 
             // Send welcome email
-            Mail::to($newUserData['user']->email)->send(new WelcomeMail($newUserData['user']->first_name));
-
+            Mail::to($newUserData['user']->email)->queue(new WelcomeMail($newUserData['user']->first_name));
             return $this->jsonResponse([
                 'message' => 'Account created successfully.',
                 'success' => true,

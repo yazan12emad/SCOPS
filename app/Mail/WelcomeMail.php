@@ -1,29 +1,36 @@
 <?php
+
 namespace App\Mail;
+
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class WelcomeMail extends Mailable
+class WelcomeMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public string $firstName;
 
-    public function __construct(string $firstName)//__construct mean the function that runs automatically when you create the object
+    public function __construct(string $firstName)
     {
         $this->firstName = $firstName;
     }
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Welcome to SCOPS!');
+        return new Envelope(
+            subject: 'Welcome to SCOPS!'
+        );
     }
 
     public function content(): Content
     {
-        return new Content(view: 'emails.welcome');
+        return new Content(
+            view: 'emails.welcome'
+        );
     }
 }

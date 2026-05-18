@@ -2,8 +2,11 @@
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Subscription;
+use App\Models\Service;                          
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SubscriptionCancelledMail;
 
 class SubscriptionController extends Controller
 {
@@ -89,9 +92,9 @@ class SubscriptionController extends Controller
         }
         $subscription->update(['status' => 'cancelled']);
 
-        // Send cancellation email BEFORE return
+        // Send cancellation email in background (queued)
         $service = Service::find($subscription->service_id);
-        Mail::to($subscription->user->email)->send(
+        Mail::to($subscription->user->email)->queue(     // ← CHANGED to queue
             new SubscriptionCancelledMail($subscription->user->first_name, $service->name)
         );
 

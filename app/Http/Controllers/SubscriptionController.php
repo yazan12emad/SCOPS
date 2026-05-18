@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Subscription;
-use App\Models\Service;                          
+use App\Models\Service;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -94,7 +94,7 @@ class SubscriptionController extends Controller
 
         // Send cancellation email in background (queued)
         $service = Service::find($subscription->service_id);
-        Mail::to($subscription->user->email)->queue(     // ← CHANGED to queue
+        Mail::to($subscription->user->email)->queue( 
             new SubscriptionCancelledMail($subscription->user->first_name, $service->name)
         );
 

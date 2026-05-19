@@ -19,14 +19,20 @@ class AuthController extends Controller
         try {
             $newUserData = $this->authService->register($request->validated());
 
-            // Send welcome email
-            Mail::to($newUserData['user']->email)->queue(new WelcomeMail($newUserData['user']->first_name));
+            try {
+                Mail::to($newUserData['user']->email)
+                    ->send(new WelcomeMail($newUserData['user']->first_name));
+            } catch (\Exception $e) {
+                \Log::error('Welcome email failed: ' . $e->getMessage());
+            }
+
             return $this->jsonResponse([
                 'message' => 'Account created successfully.',
                 'success' => true,
                 'token'   => $newUserData['token'],
                 'user'    => $newUserData['user'],
             ], 201);
+
         } catch (\Exception $exception) {
             return $this->jsonResponse([
                 'success' => false,

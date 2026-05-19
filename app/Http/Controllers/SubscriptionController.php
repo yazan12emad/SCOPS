@@ -7,6 +7,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SubscriptionCancelledMail;
+use App\Mail\RenewalReminderMail;
 
 class SubscriptionController extends Controller
 {
@@ -94,9 +95,13 @@ class SubscriptionController extends Controller
 
         // Send cancellation email in background (queued)
         $service = Service::find($subscription->service_id);
-        Mail::to($subscription->user->email)->queue( 
-            new SubscriptionCancelledMail($subscription->user->first_name, $service->name)
-        );
+        try {
+            Mail::to($subscription->user->email)->send(
+                new SubscriptionCancelledMail($subscription->user->first_name, $service->name)
+            );
+        } catch (\Exception $e) {
+            \Log::error('Cancellation email failed: ' . $e->getMessage());
+        }
 
         return $this->success($subscription, 'Subscription cancelled');
     }
@@ -104,15 +109,32 @@ class SubscriptionController extends Controller
     // Calculate next renewal date
     public function calculateNextRenewal($id){
         $subscription = Subscription::find($id);
+
         if(!$subscription){
             return $this->error('Subscription not found', 404);
         }
+
         $renewal = match($subscription->billing_cycle){
             'weekly'  => now()->addWeek(),
             'monthly' => now()->addMonth(),
             'yearly'  => now()->addYear(),
         };
+
         $subscription->update(['renewal_date' => $renewal]);
+
+        try {
+            Mail::to($subscription->user->email)->send(
+                new RenewalReminderMail(
+                    $subscription->user->first_name,
+                    $subscription->service->name,
+                    $renewal,
+                    3
+                )
+            );
+        } catch (\Exception $e) {
+            \Log::error('Renewal reminder failed: ' . $e->getMessage());
+        }
+
         return $this->success($subscription, 'Renewal date updated');
     }
 

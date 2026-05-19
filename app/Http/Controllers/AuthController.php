@@ -21,7 +21,7 @@ class AuthController extends Controller
 
             try {
                 Mail::to($newUserData['user']->email)
-                    ->send(new WelcomeMail($newUserData['user']->first_name));
+                    ->queue(new WelcomeMail($newUserData['user']->first_name));
             } catch (\Exception $e) {
                 \Log::error('Welcome email failed: ' . $e->getMessage());
             }

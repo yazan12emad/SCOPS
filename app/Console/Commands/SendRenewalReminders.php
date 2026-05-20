@@ -12,32 +12,37 @@ class SendRenewalReminders extends Command
 
     public function handle()
     {
+        $targetDate = now()->addDays(3)->toDateString();
+
         $subscriptions = Subscription::where('status', 'active')
+            ->whereDate('renewal_date', $targetDate)
             ->with(['user', 'service'])
             ->get();
 
         foreach ($subscriptions as $subscription) {
-            $daysUntilRenewal = now()->diffInDays($subscription->renewal_date, false);
 
-            if ($daysUntilRenewal == $subscription->reminder_days) {
-                // Create database notification
+            try {
+                // DB notification
                 \App\Models\Notification::create([
                     'user_id' => $subscription->user->user_id,
                     'title'   => 'Subscription Renewal Reminder',
-                    'message' => "Your {$subscription->service->name} subscription will renew in {$daysUntilRenewal} days.",
+                    'message' => "Your {$subscription->service->name} subscription will renew in 3 days.",
                     'is_read' => false,
                     'type'    => 'reminder',
                 ]);
 
-                // Send email notification
+                // Email
                 Mail::to($subscription->user->email)->send(
                     new RenewalReminderMail(
                         $subscription->user->first_name,
                         $subscription->service->name,
                         $subscription->renewal_date,
-                        $daysUntilRenewal
+                        3
                     )
                 );
+
+            } catch (\Exception $e) {
+                \Log::error('Renewal reminder failed: ' . $e->getMessage());
             }
         }
 

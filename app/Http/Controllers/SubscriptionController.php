@@ -133,7 +133,7 @@ class SubscriptionController extends Controller
                 new RenewalReminderMail(
                     $subscription->user->first_name,
                     $subscription->service->name,
-                    $renewal,
+                    $renewal->toDateString(),
                     3
                 )
             );

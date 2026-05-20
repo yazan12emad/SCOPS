@@ -13,10 +13,17 @@ class SendRenewalReminders extends Command
     {
         $targetDate = now()->addDays(3)->toDateString();
 
+        // DEBUG - remove after testing
+        \Log::info('Reminder command running. Target date: ' . $targetDate);
+        \Log::info('Current time: ' . now());
+
         $subscriptions = Subscription::where('status', 'active')
             ->whereDate('renewal_date', $targetDate)
             ->with(['user', 'service'])
             ->get();
+
+        // DEBUG
+        \Log::info('Subscriptions found: ' . $subscriptions->count());
 
         if ($subscriptions->isEmpty()) {
             $this->info('No renewals due in 3 days. Nothing sent.');

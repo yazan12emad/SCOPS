@@ -85,8 +85,14 @@ Route::get('/run-reminders/{token}', function ($token) {
     if ($token !== config('app.reminder_token')) {
         abort(403);
     }
+    $targetDate = now()->addDays(3)->toDateString();
+    $count = \App\Models\Subscription::where('status', 'active')
+        ->whereDate('renewal_date', $targetDate)
+        ->count();
     Artisan::call('reminders:send');
-    return 'Reminders sent: ' . now();
+    return 'Target date: ' . $targetDate .
+        ' | Found: ' . $count .
+        ' | Now: ' . now();
 });
 
 Route::get('/ping', function () {

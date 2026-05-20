@@ -86,18 +86,24 @@ class SubscriptionController extends Controller
     }
 
     //Cancel a subscription
-    public function cancel($id){
+    public function cancel($id)
+    {
         $subscription = Subscription::find($id);
+
         if(!$subscription){
             return $this->error('Subscription not found', 404);
         }
-        $subscription->update(['status' => 'cancelled']);
 
-        // Send cancellation email in background (queued)
-        $service = Service::find($subscription->service_id);
+        $subscription->update([
+            'status' => 'cancelled'
+        ]);
+
         try {
             Mail::to($subscription->user->email)->send(
-                new SubscriptionCancelledMail($subscription->user->first_name, $service->name)
+                new SubscriptionCancelledMail(
+                    $subscription->user->first_name,
+                    $subscription->service->name
+                )
             );
         } catch (\Exception $e) {
             \Log::error('Cancellation email failed: ' . $e->getMessage());

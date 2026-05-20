@@ -51,8 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
     // Reviews
-    Route::post('/reviews', [ReviewController::class, 'store']);
     Route::get('/reviews/{service_id}', [ReviewController::class, 'index']);
+    Route::post('/reviews', [ReviewController::class, 'store']);
 });
 
 // Admin routes (auth:sanctum only, no admin middleware)

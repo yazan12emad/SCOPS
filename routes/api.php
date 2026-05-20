@@ -89,3 +89,6 @@ Route::get('/run-reminders/{token}', function ($token) {
     return 'Reminders sent: ' . now();
 });
 
+Route::get('/ping', function () {
+    return 'pong-v2';
+});

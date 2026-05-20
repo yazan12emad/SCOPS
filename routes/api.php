@@ -74,3 +74,17 @@ Route::middleware('auth:sanctum')->group(function () {
     //----------------------------------------------------STATISTICS--------------------------------------------------------
     Route::get('/admin/statistics', [AdminController::class, 'statistics']);
 });
+
+Route::get('/run-reminders', function () {
+    Artisan::call('reminders:send');
+    return 'Reminders sent: ' . now();
+});
+
+Route::get('/run-reminders/{token}', function ($token) {
+    if ($token !== config('app.reminder_token')) {
+        abort(403);
+    }
+    Artisan::call('reminders:send');
+    return 'Reminders sent: ' . now();
+});
+

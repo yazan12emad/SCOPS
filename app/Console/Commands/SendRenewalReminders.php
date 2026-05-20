@@ -9,7 +9,6 @@ class SendRenewalReminders extends Command
 {
     protected $signature = 'reminders:send';
     protected $description = 'Send renewal reminder emails to users whose subscriptions are due soon';
-
     public function handle()
     {
         $targetDate = now()->addDays(3)->toDateString();
@@ -19,10 +18,16 @@ class SendRenewalReminders extends Command
             ->with(['user', 'service'])
             ->get();
 
-        foreach ($subscriptions as $subscription) {
+        if ($subscriptions->isEmpty()) {
+            $this->info('No renewals due in 3 days. Nothing sent.');
+            return;
+        }
 
+        $sent = 0;
+        $failed = 0;
+
+        foreach ($subscriptions as $subscription) {
             try {
-                // DB notification
                 \App\Models\Notification::create([
                     'user_id' => $subscription->user->user_id,
                     'title'   => 'Subscription Renewal Reminder',
@@ -31,7 +36,6 @@ class SendRenewalReminders extends Command
                     'type'    => 'reminder',
                 ]);
 
-                // Email
                 Mail::to($subscription->user->email)->send(
                     new RenewalReminderMail(
                         $subscription->user->first_name,
@@ -41,11 +45,13 @@ class SendRenewalReminders extends Command
                     )
                 );
 
+                $sent++;
             } catch (\Exception $e) {
-                \Log::error('Renewal reminder failed: ' . $e->getMessage());
+                $failed++;
+                \Log::error("Renewal reminder failed for subscription #{$subscription->id}: " . $e->getMessage());
             }
         }
 
-        $this->info('Renewal reminders sent!');
+        $this->info("Done. Sent: {$sent}, Failed: {$failed}");
     }
 }

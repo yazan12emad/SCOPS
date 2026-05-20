@@ -125,6 +125,8 @@ return [
 
     'Stripe' => [
         'Private_Key' => env('STRIPE_SECRET'),
-    ]
+    ],
+
+     'reminder_token' => env('REMINDER_TOKEN', 'someSecretKey123'),
 
 ];

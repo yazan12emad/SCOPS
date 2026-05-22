@@ -80,7 +80,7 @@ class AdminController extends Controller
     //Delete one user
     public function deleteUser($id)
     {
-        $user = User::find($id);
+        $user = User::where('user_id', $id)->first();
         if (!$user) {
             return $this->error('User not found', 404);
         }

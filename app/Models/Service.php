@@ -9,7 +9,14 @@ use App\Models\ServicePlans;
 class Service extends Model {
     use LogsActivity;
 
-    protected $fillable = ['category_id', 'name', 'logo_url', 'default_amount', 'billing_cycle', 'description'];
+    protected $fillable = [
+        'category_id',
+        'name',
+        'logo_url',
+        'default_amount',
+        'billing_cycle',
+        'description'
+    ];
 
     public function category() {
         return $this->belongsTo(Category::class);

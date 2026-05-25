@@ -9,6 +9,7 @@ use App\Models\Service;
 class Subscription extends Model
 {
     protected $fillable = [
+        'id' ,
         'user_id',
         'service_id',
         'card_id',

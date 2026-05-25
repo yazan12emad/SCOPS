@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\ApiResponse;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
@@ -12,21 +13,35 @@ class Payment extends Model
     use ApiResponse;
     protected $primaryKey = 'payment_id';
     protected $fillable = [
-        'subscription_id', 'amount', 'currency',
-        'status', 'gateway_transaction_id', 'receipt_url', 'paid_at'
+        'user_id',
+        'service_id',
+        'amount',
+        'status',
+        'gateway_reference',
+        'receipt_url',
+        'currency' ,
     ];
 
-    public function subscription()
+    protected $casts = [
+        'attempted_on' => 'datetime',
+    ];
+
+
+    public function card(): BelongsTo
     {
-        return $this->belongsTo(Subscription::class);
+        return $this->belongsTo(Card::class);
+    }
+    public function user():BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
-//     public function getActivityLogOptions(): LogOptions
-//    {
-//        return LogOptions::defaults()
-//            ->logOnly(['subscription_id', 'amount', 'currency', 'status'])
-//            ->useLogName('payment');
-//    }
+    public function subscription(): BelongsTo
+    {
+        return $this->belongsTo(Subscription::class, 'subscription_id');
+    }
+
+
 
 
 }

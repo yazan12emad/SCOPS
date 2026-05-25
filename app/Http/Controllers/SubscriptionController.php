@@ -22,14 +22,12 @@ class SubscriptionController extends Controller
             $query->where('status', $request->status);
         }
 
-
         // filter by category
         if($request->has('category_id')){
             $query->whereHas('service', function($q) use ($request){
                 $q->where('category_id', $request->category_id);
             });
         }
-
         // sort by renewal date to see which subscription renew soon
         if($request->has('sort_order')){
             $direction = $request->sort_order === 'desc' ? 'desc' : 'asc';

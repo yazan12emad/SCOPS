@@ -124,7 +124,9 @@ return [
     ],
 
     'Stripe' => [
-        'Private_Key' => env('STRIPE_SECRET'),
+        'secret' => env('STRIPE_SECRET'),
+        'Public_Key' => env('STRIPE_KEY'),
+        'STRIPE_WEBHOOK_SECRET' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
      'reminder_token' => env('REMINDER_TOKEN', 'someSecretKey123'),

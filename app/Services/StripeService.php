@@ -2,30 +2,69 @@
 
 namespace App\Services;
 
-use Stripe\Stripe;
-use Stripe\Token;
+use App\Models\User;
+use Stripe\StripeClient;
+use Stripe\PaymentIntent;
 
 class StripeService
 {
-        public function getToken(Array $Data)
-        {
-            Stripe::setApiKey(config('app.Stripe.Private_Key'));
-            try {
-                return Token::create([
-                    'card' => [
-                        'number' => $Data['card_number'],
-                        'exp_month' => $Data['expiry_month'],
-                        'exp_year' => $Data['expiry_year'],
-                        'cvc' => $Data['CVC'],
-                    ],
-                ]);
+    private StripeClient $connection;
 
-            }catch (\Exception $e){
-                throw new \Exception('Error creating token: ' . $e->getMessage());
-            }
+    public function __construct()
+    {
+        $this->connection = new StripeClient(config('app.Stripe.secret'));
+    }
 
+    public function createCustomer(User $user): \Stripe\Customer{
+        $result =  $this->connection->customers->create([
+            'email' => $user->email,
+            'name' => $user->first_name.' '.$user->last_name,
+            'metadata' => ['user_id' => $user->user_id],
+        ]);
 
+        if(!$result){
+            throw new \Exception('Error creating Stripe customer');
         }
+        return $result;
+    }
+    public function attachPaymentMethod(string $paymentMethodId, string $customerId): \Stripe\PaymentMethod
+    {
+        $result = $this->connection->paymentMethods->attach($paymentMethodId, [
+            'customer' => $customerId,
+        ]);
+        if (!$result) {
+            throw new \Exception('Error while attaching payment method');
+        }
+        return $result;
+    }
 
+    public function createSetupIntent(string $customerId): \Stripe\SetupIntent
+    {
+        return $this->connection->setupIntents->create([
+            'customer' => $customerId,
+            'payment_method_types' => ['card'],
+            'usage' => 'off_session',
+        ]);
+    }
 
+    public function getPaymentMethod(string $paymentMethodId): \Stripe\PaymentMethod
+    {
+        $result =  $this->connection->paymentMethods->retrieve($paymentMethodId);
+        if (!$result) {
+            throw new \Exception('Error while retrieving payment method');
+        }
+        return $result;
+    }
+
+    public function createPaymentIntent(array $data): PaymentIntent
+    {
+        return $this->connection->paymentIntents->create($data);
+    }
+
+    public function confirmPaymentIntent(string $intentId, string $paymentMethodId): \Stripe\PaymentIntent
+    {
+        return $this->connection->paymentIntents->confirm($intentId, [
+            'payment_method' => $paymentMethodId,
+        ]);
+    }
 }

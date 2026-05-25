@@ -24,6 +24,15 @@ class CardController extends Controller
         return $this->success(CardResource::collection($cards), $message);
     }
 
+    public function createSetupIntent()
+    {
+        try {
+            $data = $this->cardService->createSetupIntent(auth()->user());
+            return $this->success($data, 'Setup intent created successfully');
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage());
+        }
+    }
     public function addCard(StoreCardRequest $request){
         try {
             $cardData = $request->validated();

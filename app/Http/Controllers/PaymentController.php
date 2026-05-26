@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreInitialPayment;
 use App\Http\Requests\StorePaymentRequest;
 use App\Models\Payment;
 use App\Models\Service;
+use App\Models\ServicePlans;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Webhook;
 
@@ -15,23 +18,30 @@ class PaymentController extends Controller
     /**
      * POST /payments/{service}
      * Flutter calls this → gets back client_secret code to confirm natively.
+     * add the payment as pending
      */
-    public function MakePayment(Service $service ,StorePaymentRequest $request)
+
+    public function MakePayment(Service $service, StoreInitialPayment $request)
     {
         try {
-            $data = $this->paymentService->createPaymentIntent($service);
-           return $this->jsonResponse([
-                'success' => true,
+            $plan = ServicePlans::where('id', $request->plan_id)
+                ->where('service_id', $service->id)
+                ->firstOrFail();
+
+            $data = $this->paymentService->createPaymentIntent($service, $plan);
+
+            return $this->jsonResponse([
+                'success'       => true,
                 'client_secret' => $data['client_secret'],
-                'payment_id' => $data['payment_id'],
-                'message' => 'Payment intent created successfully'
+                'payment_id'    => $data['payment_id'],
+                'message'       => 'Payment intent created successfully'
             ]);
-        }
-        catch(\Exception $exception){
-              return  $this->jsonResponse([
-                    'success' => false,
-                    'message' => $exception->getMessage()
-                ]);
+
+        } catch (\Exception $exception) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => $exception->getMessage()
+            ]);
         }
     }
 
@@ -66,7 +76,7 @@ class PaymentController extends Controller
     public function showPayment(Payment $payment): \Illuminate\Http\JsonResponse
     {
         abort_if($payment->user_id !== auth()->id(), 403);
-        return response()->json([
+        return $this->jsonResponse([
             'status' => $payment->status,
             'receipt_url' => $payment->receipt_url,
         ]);

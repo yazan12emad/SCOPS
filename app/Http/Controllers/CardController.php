@@ -20,7 +20,6 @@ class CardController extends Controller
             ->cards()
             ->get();
         $message = $cards->isEmpty() ? "There is no cards" : "Cards retrieved successfully";
-
         return $this->success(CardResource::collection($cards), $message);
     }
 
@@ -33,6 +32,7 @@ class CardController extends Controller
             return $this->error($e->getMessage());
         }
     }
+
     public function addCard(StoreCardRequest $request){
         try {
             $cardData = $request->validated();

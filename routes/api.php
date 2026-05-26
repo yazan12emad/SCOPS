@@ -22,7 +22,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.auth.login');
 
-Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
     // the user can't see any service without logIn its app not web
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/services', [ServiceController::class, 'index']);
@@ -41,9 +41,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/subscriptions/{id}/resume', [SubscriptionController::class, 'resume']);
     Route::get('/financial-summary', [SubscriptionController::class, 'financialSummary']);
 
-    Route::get('/cards', [CardController::class, 'getCards']);
     Route::post('/cards/setup-intent', [CardController::class, 'createSetupIntent']);
     Route::post('/cards', [CardController::class, 'addCard']);
+    Route::get('/cards', [CardController::class, 'getCards']);
     Route::delete('/cards/{card}', [CardController::class, 'deleteCard']);
     Route::patch('/cards/{card}/primary', [CardController::class, 'changePrimary']);
 

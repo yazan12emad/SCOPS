@@ -27,6 +27,7 @@ class StripeService
         }
         return $result;
     }
+
     public function attachPaymentMethod(string $paymentMethodId, string $customerId): \Stripe\PaymentMethod
     {
         $result = $this->connection->paymentMethods->attach($paymentMethodId, [
@@ -40,11 +41,15 @@ class StripeService
 
     public function createSetupIntent(string $customerId): \Stripe\SetupIntent
     {
-        return $this->connection->setupIntents->create([
+         $result = $this->connection->setupIntents->create([
             'customer' => $customerId,
             'payment_method_types' => ['card'],
             'usage' => 'off_session',
         ]);
+         if(!$result){
+             throw new \Exception('Error creating setup intent');
+         }
+         return $result;
     }
 
     public function getPaymentMethod(string $paymentMethodId): \Stripe\PaymentMethod

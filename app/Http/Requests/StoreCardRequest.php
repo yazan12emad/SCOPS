@@ -43,7 +43,6 @@ class StoreCardRequest extends FormRequest
         return [
                  'stripe_payment_method_id' => ['required', 'string'],
                  'card_holder_name'=> ['required', 'string', 'max:100'],
-
 //            'card_holder_name' => ['required', 'string', 'max:100'],
 //            'card_brand'=> ['required', 'string', Rule::in(['Visa', 'MasterCard', 'American Express'])],
 //            'last4'=> ['required', 'string', 'digits:4'],

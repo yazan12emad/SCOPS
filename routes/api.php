@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CardController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\profileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ServiceController;
@@ -10,7 +9,6 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AdminController;
-use App\Models\Subscription;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
@@ -22,11 +20,11 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.auth.login');
 
-    Route::middleware('auth:sanctum')->group(function () {
-    // the user can't see any service without logIn its app not web
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/services', [ServiceController::class, 'index']);
-    Route::get('/services/{id}', [ServiceController::class, 'show']);// the id here is for the service
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services/{id}', [ServiceController::class, 'show']);// the id here is for the service
+
+Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [profileController::class, 'userProfile']);
@@ -41,16 +39,11 @@ Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.aut
     Route::put('/subscriptions/{id}/resume', [SubscriptionController::class, 'resume']);
     Route::get('/financial-summary', [SubscriptionController::class, 'financialSummary']);
 
-    Route::post('/cards/setup-intent', [CardController::class, 'createSetupIntent']);
-    Route::post('/cards', [CardController::class, 'addCard']);
+
     Route::get('/cards', [CardController::class, 'getCards']);
+    Route::post('/cards', [CardController::class, 'addCard']);
     Route::delete('/cards/{card}', [CardController::class, 'deleteCard']);
     Route::patch('/cards/{card}/primary', [CardController::class, 'changePrimary']);
-
-    //Payments process
-    Route::post('/payments/{service}', [PaymentController::class, 'MakePayment']);
-    Route::Post('/payments/confirm/{payment}', [PaymentController::class, 'confirmPayment']);
-    Route::get('/payments/{payment}',  [PaymentController::class, 'showPayment']);
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -61,9 +54,10 @@ Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.aut
     // Reviews
     Route::get('/reviews/{service_id}', [ReviewController::class, 'index']);
     Route::post('/reviews', [ReviewController::class, 'store']);
+});
 
 // Admin routes (auth:sanctum only, no admin middleware)
-// no need to add new group if we didn't make any middlewares for the admin
+Route::middleware('auth:sanctum')->group(function () {
     //----------------------------------------------------USERS----------------------------------------------------------
     Route::get('/admin/users', [AdminController::class, 'listUsers']);
     Route::post('/admin/users', [AdminController::class, 'addUser']);
@@ -82,9 +76,6 @@ Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.aut
     Route::get('/admin/statistics', [AdminController::class, 'statistics']);
 });
 
-// NO auth middleware — Stripe signs this itself
-Route::post('/webhook', [PaymentController::class, 'webhook']);
-
 Route::get('/run-reminders', function () {
     Artisan::call('reminders:send');
     return 'Reminders sent: ' . now();
@@ -95,7 +86,7 @@ Route::get('/run-reminders/{token}', function ($token) {
         abort(403);
     }
     $targetDate = now()->addDays(3)->toDateString();
-    $count = Subscription::where('status', 'active')
+    $count = \App\Models\Subscription::where('status', 'active')
         ->whereDate('renewal_date', $targetDate)
         ->count();
     Artisan::call('reminders:send');
@@ -106,11 +97,4 @@ Route::get('/run-reminders/{token}', function ($token) {
 
 Route::get('/ping', function () {
     return 'pong-v2';
-});
-
-
-Route::get('/receipt' , function(){
-    return view('pdf.payment_receipt' ,[
-
-    ]);
 });

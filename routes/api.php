@@ -19,6 +19,9 @@ Route::get('/', function(){
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.auth.login');
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);  
+
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);

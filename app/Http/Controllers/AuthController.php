@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -92,8 +91,8 @@ class AuthController extends Controller
             return $this->error('Email not found', 404);
         }
 
-        // Generate token
-        $token = Str::random(64);
+        // Generate a random verfying code
+        $token = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         // Store token in database
         DB::table('password_reset_tokens')->updateOrInsert(
@@ -105,10 +104,8 @@ class AuthController extends Controller
         );
 
         // Send email
-        $resetLink = "scops://reset-password?token={$token}&email={$request->email}";
-
         Mail::to($user->email)->send(
-            new PasswordResetMail($user->first_name, $resetLink)
+            new PasswordResetMail($user->first_name, $token)
         );
 
         return $this->success(null, 'Password reset link sent to your email');
@@ -140,7 +137,7 @@ class AuthController extends Controller
         }
 
         // Verify token
-        if (!Hash::check($request->token, $record->token)) {
+        if ($request->token !== $record->token) {
             return $this->error('Invalid reset token', 400);
         }
 

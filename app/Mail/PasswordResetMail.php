@@ -6,7 +6,7 @@ class PasswordResetMail extends Mailable
 {
     public function __construct(
         public string $firstName,
-        public string $resetLink
+        public string $resetCode
     ) {}
 
     public function build()

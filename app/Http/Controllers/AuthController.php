@@ -85,15 +85,12 @@ class AuthController extends Controller
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
-
         $user = User::where('email', $request->email)->first();
         if (!$user) {
             return $this->error('Email not found', 404);
         }
-
         // Generate a random verfying code
         $token = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
         // Store token in database
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $request->email],
@@ -103,12 +100,10 @@ class AuthController extends Controller
                 'created_at' => now()
             ]
         );
-
         // Send email
         Mail::to($user->email)->send(
             new PasswordResetMail($user->first_name, $token)
         );
-
         return $this->success(null, 'Password reset link sent to your email');
     }
 

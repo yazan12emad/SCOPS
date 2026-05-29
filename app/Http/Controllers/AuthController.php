@@ -95,7 +95,6 @@ class AuthController extends Controller
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $request->email],
             [
-                //'token' => Hash::make($token),// i think we should put this instead 'token' => $token,
                 'token' => $token,
                 'created_at' => now()
             ]

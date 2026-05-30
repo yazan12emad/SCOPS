@@ -21,6 +21,7 @@ Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.aut
 
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);

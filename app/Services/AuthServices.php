@@ -26,6 +26,7 @@ class AuthServices
                 'user' => $user,
             ];
     }
+
     public function logIn(array $userData): array
     {
         $user = User::where('email', $userData['email'])->first();
@@ -37,6 +38,9 @@ class AuthServices
         }
         if (!$user->is_active) {
             throw new \Exception('Your account is deactivated.');
+        }
+        if (!$user->email_verified_at) {
+            throw new \Exception('Email not verified. Please verify your email first.');
         }
         auth()->login($user);
         $user->logActivity('login', [

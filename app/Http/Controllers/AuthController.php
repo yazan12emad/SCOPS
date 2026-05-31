@@ -1,13 +1,20 @@
 <?php
-
 namespace App\Http\Controllers;
-
+use Illuminate\Http\Request;
+use App\Models\User;
 use App\Http\Requests\LoginUserValidation;
 use App\Http\Requests\RegisterUserValidation;
 use App\Services\AuthServices;
 use App\Traits\ApiResponse;
 use App\Mail\WelcomeMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use App\Mail\PasswordResetMail;
+use Illuminate\Support\Facades\DB;
+use App\Mail\EmailVerificationMail;
+
 
 class AuthController extends Controller
 {
@@ -19,17 +26,26 @@ class AuthController extends Controller
         try {
             $newUserData = $this->authService->register($request->validated());
 
+            //generate code
+            $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+            //saved teh code for the comparions
+            $newUserData['user']->update([
+                'email_verification_code' => $code
+            ]);
+
+            //send a verfiy email with the saved code
             try {
-                Mail::to($newUserData['user']->email)
-                    ->queue(new WelcomeMail($newUserData['user']->first_name));
+                Mail::to($newUserData['user']->email)->send(
+                    new EmailVerificationMail($newUserData['user']->first_name, $code)
+                );
             } catch (\Exception $e) {
-                \Log::error('Welcome email failed: ' . $e->getMessage());
+                \Log::error('Verification email failed: ' . $e->getMessage());
             }
 
             return $this->jsonResponse([
-                'message' => 'Account created successfully.',
+                'message' => 'Account created. Please verify your email.',
                 'success' => true,
-                'token'   => $newUserData['token'],
                 'user'    => $newUserData['user'],
             ], 201);
 
@@ -39,6 +55,44 @@ class AuthController extends Controller
                 'message' => $exception->getMessage(),
             ], 500);
         }
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code'  => 'required|digits:6'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return $this->error('Email not found. Please register first.', 404);
+        }
+
+        if ($user->email_verified_at) {
+            return $this->success(null, 'Email already verified. Please login.');
+        }
+
+        if ($user->email_verification_code !== $request->code) {
+            return $this->error('Invalid verification code.', 400);
+        }
+
+        $user->update([
+            'email_verified_at'       => now(),
+            'email_verification_code' => null
+        ]);
+
+        //send a  welcomeing email after the verification
+        try {
+            Mail::to($user->email)->send(
+                new WelcomeMail($user->first_name)
+            );
+        } catch (\Exception $e) {
+            \Log::error('Welcome email failed: ' . $e->getMessage());
+        }
+
+        return $this->success(null, 'Email verified successfully. You can now login!');
     }
 
     public function login(loginUserValidation $request){
@@ -74,5 +128,71 @@ class AuthController extends Controller
                 'message' => $exception->getMessage(),
             ]);
         }
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return $this->error('Email not found', 404);
+        }
+        // Generate a random verfying code
+        $token = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        // Store token in database
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => $token,
+                'created_at' => now()
+            ]
+        );
+        // Send email
+        Mail::to($user->email)->send(
+            new PasswordResetMail($user->first_name, $token)
+        );
+        return $this->success(null, 'Password reset link sent to your email');
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'token'    => 'required',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        //find the token
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record) {
+            return $this->error('Invalid or expired reset token', 400);
+        }
+
+        //check token validity 60 minutes if it is older delete it
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            DB::table('password_reset_tokens')
+                ->where('email', $request->email)
+                ->delete();// this line delete the token
+            return $this->error('Reset token has expired', 400);
+        }
+
+        //verify the token
+        if ($request->token !== $record->token) {
+            return $this->error('Invalid reset token', 400);
+        }
+
+        //update password
+        User::where('email', $request->email)
+            ->update(['password' => Hash::make($request->password)]);
+
+        //delete used token after successfully reset the passwrod
+        DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->delete();
+
+        return $this->success(null, 'Password reset successfully');
     }
 }

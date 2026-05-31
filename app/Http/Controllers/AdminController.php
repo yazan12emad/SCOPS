@@ -112,28 +112,75 @@ class AdminController extends Controller
 
     public function addService(Request $request)
     {
-        if (Service::where('name', $request->name)->exists()) {
-            return $this->error('Service already exists', 400);
+        $request->validate([
+            'name' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'default_amount' => 'required|numeric',
+            'billing_cycle' => 'required|string',
+            'description' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        //image upload
+        $logoUrl = null;
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/logos'), $filename);
+            $logoUrl = '/images/logos/' . $filename;
         }
-        $service = Service::create([
-            'category_id' => $request->category_id,
+
+        //create service
+        Service::create([
             'name' => $request->name,
-            'logo_url' => $request->logo_url,
+            'category_id' => $request->category_id,
             'default_amount' => $request->default_amount,
             'billing_cycle' => $request->billing_cycle,
             'description' => $request->description,
+            'logo_url' => $logoUrl,
         ]);
-        return $this->success($service, 'Service created');
+
+        return $this->success(null, 'Service created successfully');
     }
 
     public function updateService(Request $request, $id)
     {
-        $service = Service::find($id);
-        if (!$service) {
-            return $this->error('Service not found', 404);
+        $service = Service::findOrFail($id);
+
+        $request->validate([
+            'name' => 'sometimes|required|string',
+            'category_id' => 'sometimes|required|exists:categories,id',
+            'default_amount' => 'sometimes|required|numeric',
+            'billing_cycle' => 'sometimes|required|string',
+            'description' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Handle image upload
+        if ($request->hasFile('logo')) {
+            // Delete old image if exists
+            if ($service->logo_url && file_exists(public_path($service->logo_url))) {
+                unlink(public_path($service->logo_url));
+            }
+
+            // Upload new image
+            $file = $request->file('logo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/logos'), $filename);
+            $service->logo_url = '/images/logos/' . $filename;
         }
-        $service->update($request->all());
-        return $this->success($service, 'Service updated');
+
+        // Update other fields
+        $service->update([
+            'name' => $request->name ?? $service->name,
+            'category_id' => $request->category_id ?? $service->category_id,
+            'default_amount' => $request->default_amount ?? $service->default_amount,
+            'billing_cycle' => $request->billing_cycle ?? $service->billing_cycle,
+            'description' => $request->description ?? $service->description,
+            'logo_url' => $service->logo_url,
+        ]);
+
+        return $this->success(null, 'Service updated successfully');
     }
 
     public function deleteService($id)

@@ -28,11 +28,15 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.auth.login');
 
-    Route::middleware('auth:sanctum')->group(function () {
-    // the user can't see any service without logIn its app not web
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/services', [ServiceController::class, 'index']);
-    Route::get('/services/{id}', [ServiceController::class, 'show']);// the id here is for the service
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services/{id}', [ServiceController::class, 'show']);// the id here is for the service
+
+Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [profileController::class, 'userProfile']);
@@ -87,6 +91,7 @@ Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.aut
     //----------------------------------------------------STATISTICS--------------------------------------------------------
     Route::get('/admin/statistics', [AdminController::class, 'statistics']);
 });
+
 // NO auth middleware — Stripe signs this itself
 Route::post('/webhook', [PaymentController::class, 'webhook']);
 

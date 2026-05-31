@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\EmailCheckInPayment;
 use App\Services\CardBrandDetector;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -18,8 +19,12 @@ class StoreInitialPayment extends FormRequest
 
     public function rules(): array
     {
-//        $firstOfCurrentMonth = date('Y-m-01');
+        $service = $this->route('service'); // Service model (auto-resolved)
         return [
+                'email' => ['required', 'email' , new EmailCheckInPayment(
+                    planId:$this->input('plan_id'),
+                    serviceId: $service?->id
+                )] ,
                  'plan_id' => ['required', 'integer', Rule::exists('service_plans', 'id')],
         ];
     }

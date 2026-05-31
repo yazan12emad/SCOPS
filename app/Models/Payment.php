@@ -16,17 +16,14 @@ class Payment extends Model
         'user_id',
         'service_id',
         'plan_id',
+        'subscription_id',
+        'service_email' ,
         'amount',
         'status',
         'gateway_reference',
         'receipt_url',
         'currency' ,
     ];
-
-    protected $casts = [
-        'attempted_on' => 'datetime',
-    ];
-
 
     public function card(): BelongsTo
     {
@@ -40,6 +37,16 @@ class Payment extends Model
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class, 'subscription_id');
+    }
+
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(Service::class, 'service_id');
+    }
+
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(ServicePlans::class, 'plan_id');
     }
 
 

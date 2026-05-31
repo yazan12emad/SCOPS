@@ -14,6 +14,7 @@ class Subscription extends Model
         'service_id',
         'card_id',
         'plan_id',
+        'email' ,
         'amount',
         'billing_cycle',
         'start_date',

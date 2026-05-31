@@ -12,13 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->dropForeign(['subscription_id']);
-            $table->dropIndex(['subscription_id']);
-            $table->dropColumn(['subscription_id', 'attempt_count' ,'attempted_on']);
-
-            $table->unsignedBigInteger('service_id')->nullable()->after('user_id');
-
-            $table->foreign('service_id')->references('id')->on('services')->onDelete('set null');
+            $table->string('service_email')->nullable()->after('user_id');
         });
     }
 
@@ -27,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('payments', function (Blueprint $table) {
+            //
+        });
     }
 };

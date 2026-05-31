@@ -8,8 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('payments', 'plan_id')) {
+            Schema::table('payments', function (Blueprint $table) {
+                $table->dropColumn('plan_id');
+            });
+        }
+
         Schema::table('payments', function (Blueprint $table) {
-            $table->dropColumn('plan_id');
             $table->unsignedBigInteger('plan_id')->nullable()->after('service_id'); // ← nullable
 
             $table->foreign('plan_id')->references('id')->on('service_plans')->onDelete('cascade');
@@ -18,9 +23,11 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('payments', function (Blueprint $table) {
-            $table->dropForeign(['plan_id']);
-            $table->dropColumn('plan_id');
-        });
+        if (Schema::hasColumn('payments', 'plan_id')) {
+            Schema::table('payments', function (Blueprint $table) {
+                $table->dropForeign(['plan_id']);
+                $table->dropColumn('plan_id');
+            });
+        }
     }
 };

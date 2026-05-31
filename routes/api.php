@@ -10,12 +10,18 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AdminController;
+use App\Models\Payment;
 use App\Models\Subscription;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', function(){
-    dd('Welcome to the API');
+   return view('welcome_page' ,[
+       'users' => User::count() ,
+        'payment' => Payment::count() ,
+       'subscription' => subscription::count() ,
+   ]);
 });
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -81,7 +87,6 @@ Route::post('/logIn', [AuthController::class, 'logIn'])->middleware('prevent.aut
     //----------------------------------------------------STATISTICS--------------------------------------------------------
     Route::get('/admin/statistics', [AdminController::class, 'statistics']);
 });
-
 // NO auth middleware — Stripe signs this itself
 Route::post('/webhook', [PaymentController::class, 'webhook']);
 

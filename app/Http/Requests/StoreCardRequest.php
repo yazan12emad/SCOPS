@@ -41,7 +41,7 @@ class StoreCardRequest extends FormRequest
     {
 //        $firstOfCurrentMonth = date('Y-m-01');
         return [
-                 'stripe_payment_method_id' => ['required', 'string'],
+//                 'stripe_payment_method_id' => ['required', 'string'],
                  'card_holder_name'=> ['required', 'string', 'max:100'],
 //            'card_holder_name' => ['required', 'string', 'max:100'],
 //            'card_brand'=> ['required', 'string', Rule::in(['Visa', 'MasterCard', 'American Express'])],

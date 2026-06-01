@@ -39,4 +39,9 @@ class Subscription extends Model
         return $this->belongsTo(Service::class, 'service_id');
     }
 
+    public function card()
+    {
+        return $this->belongsTo(Card::class, 'card_id', 'card_id');
+    }
+
 }

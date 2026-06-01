@@ -8,6 +8,7 @@ use App\Http\Resources\CardResource;
 use App\Models\Card;
 use App\Services\CardService;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\DB;
 
 class CardController extends Controller
 {
@@ -65,5 +66,21 @@ class CardController extends Controller
             return $this->error($exception->getMessage() , $exception->getCode());
         }
         return $this->success([], "Card deleted successfully");
+    }
+
+    public function getTransactions(Card $card)
+    {
+        if(auth()->id() !==$card->user_id){
+            throw new \Exception("You don't have permission to access this page",403);
+        }
+        $transaction = DB::table('balance_transaction')
+            ->where('card_id', $card->card_id)
+            ->where('user_id', auth()->id())
+            ->get();
+       return $this->jsonResponse([
+           'success' => true,
+           'transaction' => $transaction
+       ]);
+
     }
 }

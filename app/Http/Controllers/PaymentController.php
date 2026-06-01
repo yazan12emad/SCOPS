@@ -32,6 +32,7 @@ class PaymentController extends Controller
                 'payment_id'    => $data['payment_id'],
                 'message'       => 'Payment intent created successfully'
             ]);
+
         } catch (\Exception $exception) {
             return $this->jsonResponse([
                 'success' => false,

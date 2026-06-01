@@ -15,13 +15,17 @@ use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function(){
-   return view('welcome_page' ,[
-       'users' => User::count() ,
-        'payment' => Payment::count() ,
-       'subscription' => subscription::count() ,
-   ]);
+    $data = [
+        'users'        => Cache::remember('count_users', 300, fn() => User::count()),
+        'payment'      => Cache::remember('count_payments', 300, fn() => Payment::count()),
+        'subscription' => Cache::remember('count_subscriptions', 300, fn() => subscription::count()),
+    ];
+
+    return response()->view('welcome_page', $data)
+        ->header('Cache-Control', 'public, max-age=60');
 });
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -51,11 +55,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/subscriptions/{id}/resume', [SubscriptionController::class, 'resume']);
     Route::get('/financial-summary', [SubscriptionController::class, 'financialSummary']);
 
+
     Route::post('/cards/setup-intent', [CardController::class, 'createSetupIntent']);
     Route::post('/cards', [CardController::class, 'addCard']);
     Route::get('/cards', [CardController::class, 'getCards']);
     Route::delete('/cards/{card}', [CardController::class, 'deleteCard']);
     Route::patch('/cards/{card}/primary', [CardController::class, 'changePrimary']);
+    Route::get('/cards/{card}', [CardController::class, 'getTransactions']);
 
     //Payments process
     Route::post('/payments/{service}', [PaymentController::class, 'MakePayment']);

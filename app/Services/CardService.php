@@ -66,7 +66,6 @@ class CardService
         if (!$card) {
             throw new \Exception('Failed to save card.');
         }
-
         return $card;
     }
 
@@ -177,8 +176,8 @@ class CardService
         return $card->update([
             'is_primary' => true
         ]);
-
-
     }
+
+
 
 }

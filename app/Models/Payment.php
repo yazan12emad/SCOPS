@@ -12,6 +12,7 @@ class Payment extends Model
     use LogsActivity;
     use ApiResponse;
     protected $primaryKey = 'payment_id';
+    protected $table = 'payments';
     protected $fillable = [
         'user_id',
         'service_id',

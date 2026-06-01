@@ -74,16 +74,18 @@ class ReceiptService
     public function buildPdf(Payment $payment): DomPdf
     {
         try {
-            $payment->load(['subscription.service', 'user']);
-            $card = $payment->user
-                ? $payment->user->cards()->where('is_primary', true)->first()
-                : null;
+            $payment->load(['subscription.service', 'subscription.card', 'user']);
+            $card = $payment->subscription?->card
+                ?? ($payment->user ? $payment->user->cards()->where('is_primary', true)->first() : null);
 
             return Pdf::loadView('pdf.payment_receipt', [
                 'payment' => $payment,
                 'user' => $payment->user,
                 'subscription' => $payment->subscription,
                 'card' => $card,
+                'owlLogo' => $this->imageDataUri(public_path('asset/owl_cyan.png')),
+                'scopsLogo' => $this->imageDataUri(public_path('asset/scops_white.png')),
+                'paymentReceiptImage' => $this->imageDataUri(public_path('asset/payment_receipt.png')),
             ])->setOptions([
                 'defaultFont' => 'DejaVu Sans',
                 'isRemoteEnabled' => false,
@@ -98,5 +100,14 @@ class ReceiptService
     public function fileName(Payment $payment): string
     {
         return 'SCOPS_Payment_Receipt_' . $payment->payment_id . '.pdf';
+    }
+
+    private function imageDataUri(string $path): string
+    {
+        if (!is_file($path)) {
+            return '';
+        }
+
+        return 'data:' . mime_content_type($path) . ';base64,' . base64_encode(file_get_contents($path));
     }
 }

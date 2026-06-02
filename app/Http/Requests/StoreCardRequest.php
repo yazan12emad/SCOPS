@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Services\CardBrandDetector;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 
 class StoreCardRequest extends FormRequest
 {

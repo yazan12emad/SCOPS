@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Card;
 use App\Models\User;
+use Illuminate\Validation\ValidationException;
 use Random\RandomException;
 
 class CardService
@@ -16,6 +17,14 @@ class CardService
      */
     public function addCard(array $data, User $user): Card
     {
+        $paymentMethodId = $data['stripe_payment_method_id'] ?? null;
+
+        if (! $paymentMethodId) {
+            throw ValidationException::withMessages([
+                'stripe_payment_method_id' => ['The stripe payment method id is required.'],
+            ]);
+        }
+
         // 1. Create Stripe customer if doesn't exist
         if (!$user->stripe_customer_id) {
             $customer = $this->stripeService->createCustomer($user);
@@ -23,9 +32,7 @@ class CardService
         }
 
         // 2. Fetch PaymentMethod from Stripe
-        $pm = $this->stripeService->getPaymentMethod(
-            $data['stripe_payment_method_id']
-        );
+        $pm = $this->stripeService->getPaymentMethod($paymentMethodId);
 
         // 3. Safety check — pm must not belong to another customer
         $pmCustomerId = is_string($pm->customer)
@@ -39,13 +46,11 @@ class CardService
         // 4. Attach to customer if not already attached
         if (!$pmCustomerId) {
             $this->stripeService->attachPaymentMethod(
-                $data['stripe_payment_method_id'],
+                $paymentMethodId,
                 $user->stripe_customer_id
             );
             // Re-fetch after attach to get updated object
-            $pm = $this->stripeService->getPaymentMethod(
-                $data['stripe_payment_method_id']
-            );
+            $pm = $this->stripeService->getPaymentMethod($paymentMethodId);
         }
 
         // 5. First card → set as primary automatically
@@ -66,7 +71,7 @@ class CardService
         if (!$card) {
             throw new \Exception('Failed to save card.');
         }
-        return $card;
+        return $card->refresh();
     }
 
 //    public function addCard(array $data , User $user){

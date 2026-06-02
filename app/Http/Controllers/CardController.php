@@ -9,6 +9,7 @@ use App\Models\Card;
 use App\Services\CardService;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CardController extends Controller
 {
@@ -40,6 +41,9 @@ class CardController extends Controller
             $user = auth()->user();
             $card = $this->cardService->addCard($cardData, $user);
             return $this->success(CardResource::make($card), "Card added successfully");
+        }
+        catch (ValidationException $exception) {
+            return $this->error($exception->errors(), 422);
         }
         catch (\Exception $exception){
             return $this->error($exception->getMessage());

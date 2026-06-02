@@ -9,9 +9,8 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class LoginUserValidation extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    protected $stopOnFirstFailure = true;
+
     public function authorize(): bool
     {
         return true;
@@ -25,8 +24,8 @@ class LoginUserValidation extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|string|email|max:30',
-            'password' => 'min:8|required',
+            'email' => ['required', 'string', 'email', 'max:30'],
+            'password' => ['required', 'min:8']
         ];
     }
     public function messages(): array{

@@ -2,39 +2,56 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\LogsActivity;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-//#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     use HasApiTokens;
+    use LogsActivity;
     protected $fillable = [
-        'username',
+        'user_id',
+        'first_name',
+        'last_name',
         'email',
+        'stripe_customer_id',
         'password',
         'phone',
+        'role',
+        'is_active',
+        'email_verified_at',
+        'email_verification_code',
     ];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     protected $primaryKey = 'user_id';
+    public function cards(): HasMany
+    {
+        return $this->hasMany(Card::class, 'user_id');
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class, 'user_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
 
 
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-
-
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [

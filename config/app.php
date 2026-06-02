@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Amman',
 
     /*
     |--------------------------------------------------------------------------
@@ -122,5 +122,13 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    'Stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'Public_Key' => env('STRIPE_KEY'),
+        'STRIPE_WEBHOOK_SECRET' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
+     'reminder_token' => env('REMINDER_TOKEN', 'someSecretKey123'),
 
 ];

@@ -4,28 +4,68 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Services\ActivityLogService;
 
 class AuthServices
 {
-  public function logIn(array $userData): array
-  {
-      $user = User::where('email', $userData['email'])->first();
+    public function register(array $data): array
+    {
+            if(!$user = User::create([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'password' => $data['password'], // hash by the User Model
+                'phone' => $data['phone'],
+            ])){
+                throw new \Exception("Failed to create user");
+            }
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return [
+                'success' => true,
+                'token' => $token,
+                'user' => $user,
+            ];
+    }
 
-      if (!$user || !Hash::check($userData['password'], $user->password)) {
-          return [
-              'success' => false,
-              'message' => 'Invalid email or password',
-          ];
-      }
+    public function logIn(array $userData): array
+    {
+        $user = User::where('email', $userData['email'])->first();
+        if (!$user) {
+            throw new \Exception("User not found");
+        }
+        if (!Hash::check($userData['password'], $user->password)) {
+            throw new \Exception("password not correct");
+        }
+        if (!$user->is_active) {
+            throw new \Exception('Your account is deactivated.');
+        }
+        if (!$user->email_verified_at) {
+            throw new \Exception('Email not verified. Please verify your email first.');
+        }
+        auth()->login($user);
+        $user->logActivity('login', [
+            'IP' => request()->ip(),
+            'device' => request()->userAgent(),
+        ]);
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return [
+            'success' => true,
+            'user' => $user,
+            'token' => $token,
+        ];
+    }
 
-      $token = $user->createToken('logIn_token')->plainTextToken;
-      return [
-          'success' => true,
-          'user'    => $user,
-          'token'   => $token,
-      ];
-
-  }
+    public function logOut(): void
+    {
+        $user = auth()->user();
+        if (!$user) {
+            throw new \Exception("User not found");
+        }
+        $user->logActivity('logout', [
+            'IP' => request()->ip(),
+        ]);
+        $user->tokens()->delete();
+    }
 
 
 }

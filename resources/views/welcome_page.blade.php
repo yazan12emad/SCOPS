@@ -421,11 +421,11 @@
         </div>
 
         <div class="actions">
-          <a class="btn-primary" href="#start" id="start">
+            <a class="btn-primary" href="https://www.youtube.com/watch?v=Cv_4JavyY1M" target="_blank">
             Get started
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
           </a>
-          <a class="btn-ghost" href="#how" id="how">
+            <a class="btn-ghost" href="https://www.youtube.com/watch?v=Cv_4JavyY1M" target="_blank">
             <span class="play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
             See how it works
           </a>

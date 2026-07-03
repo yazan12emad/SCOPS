@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\Subscription;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Support\CloudinaryUploader;
 
 class AdminController extends Controller
 {
@@ -128,11 +129,11 @@ class AdminController extends Controller
 
         // Upload to Cloudinary if image provided
         if ($request->hasFile('logo')) {
-            $uploaded = cloudinary()->upload(
+            $uploaded = CloudinaryUploader::upload(
                 $request->file('logo')->getRealPath(),
                 ['folder' => 'service-logos']
             );
-            $logoUrl = $uploaded->getSecurePath();
+            $logoUrl = $uploaded['secure_url'];
         }
 
         $service = Service::create([
@@ -153,11 +154,11 @@ class AdminController extends Controller
 
         // Upload new logo if provided
         if ($request->hasFile('logo')) {
-            $uploaded = cloudinary()->upload(
+            $uploaded = CloudinaryUploader::upload(
                 $request->file('logo')->getRealPath(),
                 ['folder' => 'service-logos']
             );
-            $request->merge(['logo_url' => $uploaded->getSecurePath()]);
+            $request->merge(['logo_url' => $uploaded['secure_url']]);
         }
 
         $service->update($request->except('logo'));

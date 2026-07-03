@@ -23,7 +23,7 @@
             --gray:        #94A3B8;
             --card-line:   rgba(20, 230, 244, 0.16);
             --font-display: "Space Grotesk", sans-serif;
-            --font-body:    "Manrope", sans-serif;
+            --font_body:    "Manrope", sans-serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +31,7 @@
         html, body { height: 100%; }
 
         body {
-            font-family: var(--font-body);
+            font-family: var(--font_body);
             background: var(--navy);
             color: var(--white);
             min-height: 100vh;
@@ -474,7 +474,7 @@
                         <path d="M13 6l6 6-6 6"/>
                     </svg>
                 </a>
-                <a class="btn-ghost" href="#how" id="how">
+                <a class="btn-ghost" href="https://youtu.be/aX5vrM7gXZ4" id="how">
                     <span class="play"><svg viewBox="0 0 24 24" fill="currentColor"><path
                                 d="M8 5v14l11-7z"/></svg></span>
                     See how it works

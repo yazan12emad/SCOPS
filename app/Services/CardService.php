@@ -66,6 +66,7 @@ class CardService
             'expiry_year'              => $pm->card->exp_year  ?? null,
             'is_primary'               => $isFirstCard,
             'stripe_payment_method_id' => $pm->id,
+            'balance' => 100 // these value for testing
         ]);
 
         if (!$card) {

@@ -14,8 +14,8 @@ class Card extends Model
     protected $table = 'cards';
     protected $primaryKey = 'card_id';
     protected $fillable = [
-        'card_id', 'user_id', 'card_holder_name', 'card_brand', 'last4', 'balance',
-        'stripe_payment_method_id', 'expiry_month', 'expiry_year', 'is_primary'
+          'card_id', 'user_id','card_holder_name', 'card_brand','last4'
+        , 'stripe_payment_method_id' , 'expiry_month','expiry_year','is_primary'
     ];
 
     public function user()

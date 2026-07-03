@@ -36,3 +36,14 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: database
+- key: CLOUDINARY_CLOUD_NAME
+
+  value: o2aqdium
+
+- key: CLOUDINARY_API_KEY
+
+  value: 925919952815821
+
+- key: CLOUDINARY_API_SECRET
+
+  value: TqiJYnYkZWbDvB082nJGDLtD3Yk

@@ -110,77 +110,58 @@ class AdminController extends Controller
         return $this->success($services, 'Services fetched');
     }
 
-    public function addService(Request $request)
-    {
+    public function addService(Request $request){
         $request->validate([
-            'name' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
+            'name'           => 'required|string',
+            'category_id'    => 'required|integer',
             'default_amount' => 'required|numeric',
-            'billing_cycle' => 'required|string',
-            'description' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'billing_cycle'  => 'required|string',
+            'description'    => 'nullable|string',
+            'logo'           => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
         ]);
 
-        //image upload
-        $logoUrl = null;
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('images/logos'), $filename);
-            $logoUrl = '/images/logos/' . $filename;
+        if(Service::where('name', $request->name)->exists()){
+            return $this->error('Service already exists', 400);
         }
 
-        //create service
-        Service::create([
-            'name' => $request->name,
-            'category_id' => $request->category_id,
+        $logoUrl = $request->logo_url ?? null;
+
+        // Upload to Cloudinary if image provided
+        if ($request->hasFile('logo')) {
+            $uploaded = cloudinary()->upload(
+                $request->file('logo')->getRealPath(),
+                ['folder' => 'service-logos']
+            );
+            $logoUrl = $uploaded->getSecurePath();
+        }
+
+        $service = Service::create([
+            'category_id'    => $request->category_id,
+            'name'           => $request->name,
+            'logo_url'       => $logoUrl,
             'default_amount' => $request->default_amount,
-            'billing_cycle' => $request->billing_cycle,
-            'description' => $request->description,
-            'logo_url' => $logoUrl,
+            'billing_cycle'  => $request->billing_cycle,
+            'description'    => $request->description,
         ]);
 
-        return $this->success(null, 'Service created successfully');
+        return $this->success($service, 'Service created');
     }
 
-    public function updateService(Request $request, $id)
-    {
-        $service = Service::findOrFail($id);
+    public function updateService(Request $request, $id){
+        $service = Service::find($id);
+        if(!$service){ return $this->error('Service not found', 404); }
 
-        $request->validate([
-            'name' => 'sometimes|required|string',
-            'category_id' => 'sometimes|required|exists:categories,id',
-            'default_amount' => 'sometimes|required|numeric',
-            'billing_cycle' => 'sometimes|required|string',
-            'description' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        // Handle image upload
+        // Upload new logo if provided
         if ($request->hasFile('logo')) {
-            // Delete old image if exists
-            if ($service->logo_url && file_exists(public_path($service->logo_url))) {
-                unlink(public_path($service->logo_url));
-            }
-
-            // Upload new image
-            $file = $request->file('logo');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('images/logos'), $filename);
-            $service->logo_url = '/images/logos/' . $filename;
+            $uploaded = cloudinary()->upload(
+                $request->file('logo')->getRealPath(),
+                ['folder' => 'service-logos']
+            );
+            $request->merge(['logo_url' => $uploaded->getSecurePath()]);
         }
 
-        // Update other fields
-        $service->update([
-            'name' => $request->name ?? $service->name,
-            'category_id' => $request->category_id ?? $service->category_id,
-            'default_amount' => $request->default_amount ?? $service->default_amount,
-            'billing_cycle' => $request->billing_cycle ?? $service->billing_cycle,
-            'description' => $request->description ?? $service->description,
-            'logo_url' => $service->logo_url,
-        ]);
-
-        return $this->success(null, 'Service updated successfully');
+        $service->update($request->except('logo'));
+        return $this->success($service, 'Service updated');
     }
 
     public function deleteService($id)

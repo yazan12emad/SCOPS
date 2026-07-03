@@ -13,16 +13,15 @@ class ServiceController extends Controller
     public function index(Request $request)
     {
         $query = Service::with('category');
+
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }
+
         $services = $query->paginate(10);
 
-        // Convert to full URLs
+        // No asset() here — Cloudinary already gives full URL
         $services->getCollection()->transform(function ($service) {
-            if ($service->logo_url) {
-                $service->logo_url = asset($service->logo_url);
-            }
             return $service;
         });
 
@@ -34,11 +33,6 @@ class ServiceController extends Controller
     public function show($id)
     {
         $service = Service::with(['category', 'plans'])->findOrFail($id);
-
-        // Convert to full URL
-        if ($service->logo_url) {
-            $service->logo_url = asset($service->logo_url);
-        }
 
         return $this->success($service, 'Service fetched');
     }
